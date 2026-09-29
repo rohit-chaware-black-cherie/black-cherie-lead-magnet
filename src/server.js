@@ -59,19 +59,17 @@ function createApp() {
                 throw err;
             }
 
+            try {
+                await mailer.sendScorecard(doc);
+                await Submission.updateOne({ _id: doc._id }, { $set: { emailSent: true, emailError: null } });
+            } catch (err) {
+                console.error("[mail]", err.message);
+                await Submission.updateOne({ _id: doc._id }, { $set: { emailError: String(err.message).slice(0, 500) } });
+                console.log("[POST /api/submissions] : execution finished");
+                return res.status(502).json({ status: "error", message: "Could not send your report email. Please try again." });
+            }
+
             res.status(201).json({ status: "ok", id: doc._id });
-
-            // Email in the background after the response is sent
-            mailer
-                .sendScorecard(doc)
-                .then(async () => {
-                    await Submission.updateOne({ _id: doc._id }, { $set: { emailSent: true, emailError: null } });
-                })
-                .catch(async (err) => {
-                    console.error("[mail]", err.message);
-                    await Submission.updateOne({ _id: doc._id }, { $set: { emailError: String(err.message).slice(0, 500) } });
-                });
-
             console.log("[POST /api/submissions] : execution finished");
         } catch (err) {
             console.error("[error]", err);

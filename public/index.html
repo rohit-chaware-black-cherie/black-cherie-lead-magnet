@@ -1100,7 +1100,7 @@
                     ],
                 },
 
-                { id: "result", type: "result" },
+                { id: "done", type: "done" },
             ];
 
             const TOTAL_SECTIONS = STEPS.filter((s) => s.type === "section" || s.type === "contact").length;
@@ -1128,9 +1128,9 @@
             function render() {
                 const step = STEPS[current];
                 const stage = document.getElementById("stage");
-                document.getElementById("progresshead").style.display = step.type === "intro" || step.type === "result" ? "none" : "block";
+                document.getElementById("progresshead").style.display = step.type === "intro" || step.type === "done" ? "none" : "block";
 
-                if (step.type !== "intro" && step.type !== "result") {
+                if (step.type !== "intro" && step.type !== "done") {
                     const sectionIndex = STEPS.slice(0, current + 1).filter((s) => s.type === "section" || s.type === "contact").length;
                     document.getElementById("stepcount").textContent = `Step ${sectionIndex} of ${TOTAL_SECTIONS}`;
                     document.getElementById("progressfill").style.width = `${(sectionIndex / TOTAL_SECTIONS) * 100}%`;
@@ -1147,7 +1147,7 @@
         <p class="lead"><strong style="color:var(--navy);">The question is: did the brand evolve with it?</strong></p>
         <div class="timepill">⏱ Takes about 5–7 minutes</div>
         <div class="checklist">
-          <div>✓ Your Business–Brand Alignment Score</div>
+          <div>✓ Your Alignment Scorecard emailed to you</div>
           <div>✓ A full breakdown across six diagnostic dimensions</div>
           <div>✓ Your primary and secondary alignment gaps</div>
           <div>✓ What to investigate next</div>
@@ -1163,13 +1163,13 @@
                     step.fields.forEach((f) => (html += renderField(f)));
                     html += `
       <div class="req-note" id="reqnote">Please answer every question to continue.</div>
-      <div class="navrow">
+                    <div class="navrow">
         <button class="btn-back" onclick="goBack()" ${current === 1 ? "disabled" : ""}>← Back</button>
-        <button class="btn-next" id="nextbtn" onclick="handleNext()">${step.type === "contact" ? "Get my Alignment Score" : "Continue"}</button>
+        <button class="btn-next" id="nextbtn" onclick="handleNext()">${step.type === "contact" ? "Email my report" : "Continue"}</button>
       </div>
     </div>`;
-                } else if (step.type === "result") {
-                    html = renderResult(computeResult(answers));
+                } else if (step.type === "done") {
+                    html = renderDone();
                 }
 
                 stage.innerHTML = html;
@@ -1177,10 +1177,6 @@
                 if (step.type === "section" || step.type === "contact") {
                     step.fields.forEach((f) => bindField(f));
                     updateNextButton(step);
-                }
-
-                if (step.type === "result") {
-                    submitToBackend(answers, computeResult(answers));
                 }
             }
 
@@ -1300,6 +1296,10 @@
                 const step = STEPS[current];
                 if (!isStepComplete(step)) {
                     document.getElementById("reqnote").classList.add("show");
+                    return;
+                }
+                if (step.type === "contact") {
+                    submitAndFinish();
                     return;
                 }
                 goNext();
@@ -1506,111 +1506,56 @@
             };
 
             /* =========================================================
-   RESULT SCREEN
+   DONE SCREEN — score is emailed as PDF, not shown on-page
    ========================================================= */
-            function renderResult(r) {
-                const breakdownRows = Object.entries(r.dims)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(
-                        ([k, v]) => `
-    <div class="brow">
-      <div class="blabel"><span>${DIM_LABELS[k]}</span><span class="bval">${Math.round(v)}% pressure</span></div>
-      <div class="btrack"><div class="bfill" style="width:${Math.round(v)}%; background:${dimColor(v)};"></div></div>
-    </div>`,
-                    )
-                    .join("");
-
-                const gapDetails = `
-    <div class="gapdetail">
-      <div class="gtitle">Primary — ${r.primary}</div>
-      <p>${PROFILE_DETAILS[r.primary]}</p>
-    </div>
-    ${
-        r.secondary
-            ? `<div class="gapdetail">
-      <div class="gtitle">Secondary — ${r.secondary}</div>
-      <p>${PROFILE_DETAILS[r.secondary]}</p>
-    </div>`
-            : ""
-    }
-    ${
-        r.founderSignal
-            ? `<div class="gapdetail signalbox">
-      <div class="gtitle">Also flagged — Founder Dependency Signal</div>
-      <p>${FOUNDER_SIGNAL_TEXT}</p>
-    </div>`
-            : ""
-    }`;
-
-                const scheduleBlock =
-                    r.band.label !== "Aligned" && SCHEDULE_URL
-                        ? `
-    <div class="schedulebox">
-      <div class="stitle">Want a second pair of eyes on this?</div>
-      <p>Your result suggests there's enough signal here to talk it through. This is a strategic conversation, not a sales pitch.</p>
-      <a class="schedulebtn" href="${SCHEDULE_URL}" target="_blank" rel="noopener">Schedule a conversation →</a>
-    </div>`
-                        : "";
-
+            function renderDone() {
+                const email = answers.email || "your email";
                 return `
-    <div class="card-panel resultwrap">
-      <div class="eyebrow" style="text-align:left;">Your Business–Brand Alignment Score</div>
-      <div class="scorebadge">${r.score}</div>
-      <div class="scoreof">out of 100</div>
-      <div class="bandtag" style="background:${r.band.color};">${r.band.label}</div>
-      <div class="gaugewrap">
-        <div class="gauge">
-          <div style="background:#C4432B;"></div><div style="background:#B4791F;"></div><div style="background:#3D68F0;"></div><div style="background:#1E7D5C;"></div>
-        </div>
-        <div class="gaugemarker"><div class="arrow" style="left:${r.score}%;">▲</div></div>
-      </div>
-      <p class="resulttext"><strong>${r.headline}</strong></p>
-      <p class="resulttext">${r.interpretation}</p>
-      <div class="taglist">
-        <span class="gaptag primary">Primary — ${r.primary}</span>
-        ${r.secondary ? `<span class="gaptag secondary">Secondary — ${r.secondary}</span>` : ""}
-        ${r.founderSignal ? `<span class="gaptag signal">Founder Dependency Signal</span>` : ""}
-      </div>
-
-      <div class="sectionlbl">Where the pressure is coming from</div>
-      <div class="breakdown">${breakdownRows}</div>
-
-      <div class="sectionlbl">What each gap means</div>
-      ${gapDetails}
-
-      <div class="nextbox">
-        <div class="lbl">What to investigate next</div>
-        <p style="margin:0; font-size:13px; color:var(--navy);">${r.nextStep}</p>
-      </div>
-
-      ${scheduleBlock}
-
-      <p class="footnote">This score does not mean you need a rebrand — it means there's enough signal here to investigate further.<br><strong>Your full report has been sent to ${answers.email || "your email"}.</strong></p>
+    <div class="card-panel resultwrap" style="text-align:center;">
+      <div class="mark" style="margin:0 auto 18px;">*</div>
+      <h1 class="qtitle" style="text-align:center;">Your report is on its way</h1>
+      <p class="resulttext" style="text-align:center;">We've emailed your Business–Brand Alignment Scorecard (PDF) to <strong>${email}</strong>.</p>
+      <p class="resulttext" style="text-align:center;">Check your inbox in the next few minutes — and your spam folder if you don't see it.</p>
+      <p class="footnote" style="text-align:center;margin-top:28px;">This score does not mean you need a rebrand — it means there's enough signal to investigate further.</p>
     </div>`;
             }
 
             /* =========================================================
-   SUBMISSION — POSTs to the Node API (stores in MongoDB + emails scorecard)
+   SUBMISSION — POSTs to the Node API (stores in MongoDB + emails PDF scorecard)
    ========================================================= */
             const SUBMISSION_ID =
                 window.crypto && crypto.randomUUID ? crypto.randomUUID() : "sub-" + Date.now() + "-" + Math.random().toString(16).slice(2);
             let submitted = false;
 
-            function submitToBackend(a, r, attempt) {
-                attempt = attempt || 1;
-                if (submitted && attempt === 1) return;
+            function submitAndFinish() {
+                if (submitted) return;
+                const btn = document.getElementById("nextbtn");
+                if (btn) {
+                    btn.disabled = true;
+                    btn.textContent = "Sending…";
+                }
                 submitted = true;
                 fetch(API_ENDPOINT, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ submissionId: SUBMISSION_ID, answers: a }),
+                    body: JSON.stringify({ submissionId: SUBMISSION_ID, answers: answers }),
                 })
                     .then((res) => {
                         if (!res.ok) throw new Error("HTTP " + res.status);
+                        goNext();
                     })
                     .catch((err) => {
                         console.error("Submission failed:", err);
-                        if (attempt < 3) setTimeout(() => submitToBackend(a, r, attempt + 1), 3000 * attempt);
+                        submitted = false;
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.textContent = "Email my report";
+                        }
+                        const note = document.getElementById("reqnote");
+                        if (note) {
+                            note.textContent = "Something went wrong sending your report. Please try again.";
+                            note.classList.add("show");
+                        }
                     });
             }
 

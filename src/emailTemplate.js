@@ -30,8 +30,20 @@ function nextStep(band) {
   );
 }
 
+function headline(band) {
+  return (
+    {
+      Aligned: "Your business and brand appear to be evolving together.",
+      Evolving: "Your business is evolving faster than parts of your brand.",
+      "Perception Gap": "There appears to be a meaningful gap between the business you've built and how it's represented.",
+      Misaligned: "Your business appears to have materially outgrown the brand representing it.",
+    }[band] || ""
+  );
+}
+
 /** @param s a Submission (or plain object) with score, band, primary, secondary, founderSignal, dims, name */
-function buildScorecard(s, { scheduleUrl, brandEvolutionTestUrl }) {
+function buildScorecard(s, { scheduleUrl, brandEvolutionTestUrl } = {}) {
+  console.log("[buildScorecard] : building HTML scorecard email");
   const bandColor = BAND_COLORS[s.band] || "#1E4FE0";
   const dims = s.dims || {};
 
@@ -81,6 +93,8 @@ function buildScorecard(s, { scheduleUrl, brandEvolutionTestUrl }) {
       </div>`
     : "";
 
+  const markerLeft = Math.min(100, Math.max(0, Number(s.score) || 0));
+
   const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#ffffff;">
   <div style="font-family:Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;color:#12162B;">
     <div style="background:#0A1F44;padding:28px 30px;border-radius:12px 12px 0 0;">
@@ -89,11 +103,30 @@ function buildScorecard(s, { scheduleUrl, brandEvolutionTestUrl }) {
     </div>
     <div style="background:#EEF2FE;padding:30px;">
       <div style="text-align:center;margin-bottom:22px;">
+        <div style="font-size:11px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#1E4FE0;margin-bottom:10px;">Your Business–Brand Alignment Score</div>
         <div style="font-size:50px;font-weight:900;color:#0A1F44;">${s.score}</div>
         <div style="font-size:12px;color:#57607A;margin-bottom:10px;">out of 100</div>
         <div style="display:inline-block;background:${bandColor};color:#fff;font-size:11px;font-weight:bold;letter-spacing:0.5px;text-transform:uppercase;padding:6px 16px;border-radius:20px;">${escapeHtml(s.band)}</div>
+        <div style="margin:16px auto 0;max-width:320px;">
+          <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;">
+            <div style="flex:1;background:#C4432B;"></div>
+            <div style="flex:1;background:#B4791F;"></div>
+            <div style="flex:1;background:#3D68F0;"></div>
+            <div style="flex:1;background:#1E7D5C;"></div>
+          </div>
+          <div style="position:relative;height:14px;">
+            <div style="position:absolute;left:${markerLeft}%;transform:translateX(-50%);color:#0A1F44;font-size:10px;line-height:14px;">▲</div>
+          </div>
+        </div>
       </div>
-      <p style="font-size:13.5px;line-height:1.6;">${escapeHtml(interpretation(s.band))}</p>
+      <p style="font-size:14px;line-height:1.55;color:#0A1F44;font-weight:bold;margin:0 0 8px;">${escapeHtml(headline(s.band))}</p>
+      <p style="font-size:13.5px;line-height:1.6;margin:0 0 16px;">${escapeHtml(interpretation(s.band))}</p>
+
+      <div style="margin-bottom:18px;">
+        <span style="display:inline-block;background:#0A1F44;color:#fff;font-size:10px;font-weight:bold;letter-spacing:0.4px;text-transform:uppercase;padding:6px 12px;border-radius:16px;margin:0 6px 6px 0;">Primary — ${escapeHtml(s.primary)}</span>
+        ${s.secondary ? `<span style="display:inline-block;background:#EEF2FE;color:#1E4FE0;font-size:10px;font-weight:bold;letter-spacing:0.4px;text-transform:uppercase;padding:6px 12px;border-radius:16px;margin:0 6px 6px 0;">Secondary — ${escapeHtml(s.secondary)}</span>` : ""}
+        ${s.founderSignal ? `<span style="display:inline-block;background:#FCF4E8;color:#B4791F;font-size:10px;font-weight:bold;letter-spacing:0.4px;text-transform:uppercase;padding:6px 12px;border-radius:16px;margin:0 6px 6px 0;">Founder Dependency Signal</span>` : ""}
+      </div>
 
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#1E4FE0;font-weight:bold;margin:20px 0 8px;">Where the pressure is coming from</div>
       <table style="width:100%;border-collapse:collapse;">${dimRows}</table>
@@ -117,6 +150,7 @@ function buildScorecard(s, { scheduleUrl, brandEvolutionTestUrl }) {
     `Hi ${s.name || "there"}, here's your Business–Brand Alignment Score.`,
     ``,
     `Score: ${s.score}/100 — ${s.band}`,
+    headline(s.band),
     interpretation(s.band),
     ``,
     `Where the pressure is coming from:`,
@@ -134,6 +168,7 @@ function buildScorecard(s, { scheduleUrl, brandEvolutionTestUrl }) {
     .filter((l) => l !== "")
     .join("\n");
 
+  console.log("[buildScorecard] : execution finished");
   return { subject: `Your Business–Brand Alignment Score: ${s.score}/100`, html, text };
 }
 

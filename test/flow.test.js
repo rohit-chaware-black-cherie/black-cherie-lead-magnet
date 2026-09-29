@@ -77,7 +77,7 @@ test("validation rejects bad email, out-of-range scale and missing id", () => {
   assert.ok(v.errors.some((e) => /submissionId/.test(e)));
 });
 
-test("scorecard email renders and escapes HTML", () => {
+test("scorecard email renders full HTML report and escapes", () => {
   const base = {
     name: "<b>Eve</b>", score: 41, band: "Perception Gap",
     primary: "Brand Representation Gap", secondary: "Positioning Gap",
@@ -86,9 +86,16 @@ test("scorecard email renders and escapes HTML", () => {
   const m = buildScorecard(base, { scheduleUrl: "https://cal.com/x", brandEvolutionTestUrl: "https://t.co" });
   assert.match(m.subject, /41\/100/);
   assert.ok(!m.html.includes("<b>Eve</b>") && m.html.includes("&lt;b&gt;Eve"));
+  assert.ok(m.html.includes("Where the pressure is coming from"));
   assert.ok(m.html.includes("Schedule a conversation"));
+  assert.ok(m.html.includes("Founder Dependency Signal"));
   const aligned = buildScorecard({ ...base, band: "Aligned", score: 90 }, { scheduleUrl: "https://cal.com/x" });
   assert.ok(!aligned.html.includes("Schedule a conversation"));
+});
+
+test("form confirms by email instead of showing on-page score", () => {
+  assert.ok(html.includes("Your report is on its way"));
+  assert.ok(!html.includes("function renderResult"));
 });
 
 test("HTTP: serves form and accepts submissions", async () => {
@@ -126,7 +133,6 @@ test("HTTP: serves form and accepts submissions", async () => {
       body: JSON.stringify({ submissionId: "uuid-1234-5678", answers: randomAnswers(5) }),
     });
     assert.strictEqual(ok.status, 201);
-    await new Promise((r) => setTimeout(r, 50));
     assert.strictEqual(created.length, 1);
     assert.deepStrictEqual(sent, ["t@example.com"]);
   } finally {
