@@ -1,0 +1,1620 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>The Business–Brand Alignment Score | Black*Cherie</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            :root {
+                --navy: #0a1f44;
+                --blue: #1e4fe0;
+                --blue-deep: #123aa8;
+                --blue-mid: #3d68f0;
+                --blue-light: #7c9bff;
+                --blue-tint: #eef2fe;
+                --blue-tint-2: #dce6fd;
+                --line: #d9e2f7;
+                --ink: #12162b;
+                --slate: #57607a;
+                --red: #c4432b;
+                --red-tint: #fbf2f0;
+                --green: #1e7d5c;
+                --green-tint: #eef7f3;
+                --amber: #b4791f;
+                --amber-tint: #fcf4e8;
+                --font: "Helvetica Now Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                background: #eef2fc;
+                font-family: var(--font);
+                color: var(--ink);
+                -webkit-font-smoothing: antialiased;
+            }
+
+            #app {
+                max-width: 700px;
+                margin: 0 auto;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                padding: 0 18px;
+            }
+
+            .progresshead {
+                position: sticky;
+                top: 0;
+                background: #eef2fc;
+                padding: 26px 4px 14px;
+                z-index: 5;
+            }
+            .progresshead .toprow {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+            .brand {
+                font-family: var(--font);
+                font-weight: 800;
+                font-size: 18px;
+                color: var(--navy);
+                letter-spacing: -0.2px;
+            }
+            .brand span {
+                color: var(--blue);
+            }
+            .stepcount {
+                font-size: 11px;
+                color: var(--slate);
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+            }
+            .progressbar {
+                height: 6px;
+                background: var(--blue-tint-2);
+                border-radius: 6px;
+                overflow: hidden;
+            }
+            .progressbar-fill {
+                height: 100%;
+                background: var(--blue);
+                border-radius: 6px;
+                transition: width 0.35s ease;
+            }
+
+            .stage {
+                flex: 1;
+                padding: 24px 4px 48px;
+            }
+            .card-panel {
+                background: #fff;
+                border-radius: 18px;
+                padding: 44px 40px;
+                box-shadow: 0 4px 28px rgba(10, 31, 68, 0.08);
+            }
+
+            .eyebrow {
+                font-size: 11px;
+                font-weight: 800;
+                letter-spacing: 1.4px;
+                text-transform: uppercase;
+                color: var(--blue);
+                margin-bottom: 10px;
+            }
+            h1.qtitle {
+                font-family: var(--font);
+                font-weight: 800;
+                font-size: 26px;
+                color: var(--navy);
+                line-height: 1.28;
+                margin: 0 0 12px;
+                letter-spacing: -0.3px;
+            }
+            p.qsub {
+                font-size: 14px;
+                color: var(--slate);
+                line-height: 1.6;
+                margin: 0 0 30px;
+            }
+            p.lead {
+                font-size: 15px;
+                color: var(--slate);
+                line-height: 1.7;
+                margin: 0 0 12px;
+            }
+
+            .field {
+                margin-bottom: 32px;
+            }
+            .field:last-child {
+                margin-bottom: 0;
+            }
+            .field-q {
+                font-weight: 700;
+                font-size: 15.5px;
+                color: var(--navy);
+                margin-bottom: 5px;
+                line-height: 1.45;
+            }
+            .field-hint {
+                font-size: 12px;
+                color: var(--slate);
+                margin-bottom: 14px;
+            }
+
+            .opt-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .opt-grid.grid2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .opt {
+                border: 1.5px solid var(--line);
+                border-radius: 11px;
+                padding: 14px 16px;
+                cursor: pointer;
+                font-size: 13.8px;
+                color: var(--ink);
+                background: #fff;
+                transition: all 0.15s ease;
+                user-select: none;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                line-height: 1.4;
+            }
+            .opt:hover {
+                border-color: var(--blue-light);
+                background: var(--blue-tint);
+            }
+            .opt.selected {
+                border-color: var(--blue);
+                background: var(--blue-tint);
+                font-weight: 700;
+                color: var(--navy);
+            }
+            .opt .box {
+                width: 18px;
+                height: 18px;
+                border-radius: 6px;
+                border: 1.8px solid var(--line);
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #fff;
+            }
+            .opt.selected .box {
+                background: var(--blue);
+                border-color: var(--blue);
+            }
+            .opt.radio .box {
+                border-radius: 50%;
+            }
+            .opt .box svg {
+                display: none;
+                width: 11px;
+                height: 11px;
+            }
+            .opt.selected .box svg {
+                display: block;
+            }
+
+            .scale-row {
+                display: flex;
+                gap: 8px;
+            }
+            .scale-pill {
+                flex: 1;
+                text-align: center;
+                border: 1.5px solid var(--line);
+                border-radius: 10px;
+                padding: 14px 4px;
+                cursor: pointer;
+                font-size: 12px;
+                color: var(--slate);
+                background: #fff;
+                transition: all 0.15s ease;
+            }
+            .scale-pill .num {
+                display: block;
+                font-weight: 800;
+                font-size: 17px;
+                color: var(--navy);
+                margin-bottom: 3px;
+            }
+            .scale-pill:hover {
+                border-color: var(--blue-light);
+            }
+            .scale-pill.selected {
+                border-color: var(--blue);
+                background: var(--blue);
+            }
+            .scale-pill.selected .num {
+                color: #fff;
+            }
+            .scale-pill.selected span:last-child {
+                color: #fff;
+            }
+            .scale-labels {
+                display: flex;
+                justify-content: space-between;
+                font-size: 10.5px;
+                color: var(--slate);
+                margin-top: 8px;
+            }
+
+            input[type="text"],
+            input[type="email"],
+            textarea {
+                width: 100%;
+                border: 1.5px solid var(--line);
+                border-radius: 11px;
+                padding: 14px 16px;
+                font-size: 14.5px;
+                font-family: var(--font);
+                color: var(--ink);
+                background: #fff;
+                outline: none;
+                transition: border-color 0.15s;
+            }
+            input[type="text"]:focus,
+            input[type="email"]:focus,
+            textarea:focus {
+                border-color: var(--blue);
+            }
+            textarea {
+                min-height: 110px;
+                resize: vertical;
+            }
+
+            .navrow {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 36px;
+            }
+            button {
+                font-family: var(--font);
+                cursor: pointer;
+                border: none;
+            }
+            .btn-back {
+                background: transparent;
+                color: var(--slate);
+                font-size: 13.5px;
+                font-weight: 700;
+                padding: 12px 8px;
+            }
+            .btn-back:disabled {
+                visibility: hidden;
+            }
+            .btn-next {
+                background: var(--blue);
+                color: #fff;
+                font-size: 14.5px;
+                font-weight: 800;
+                padding: 15px 30px;
+                border-radius: 32px;
+                transition: all 0.15s ease;
+            }
+            .btn-next:hover {
+                background: var(--blue-deep);
+            }
+            .btn-next:disabled {
+                background: #c7d2ef;
+                cursor: not-allowed;
+            }
+            .req-note {
+                font-size: 11.5px;
+                color: var(--red);
+                margin-top: 12px;
+                display: none;
+            }
+            .req-note.show {
+                display: block;
+            }
+
+            .hero {
+                text-align: center;
+                padding: 16px 6px 6px;
+            }
+            .hero .mark {
+                font-size: 46px;
+                font-weight: 900;
+                color: var(--blue-light);
+                line-height: 1;
+                margin-bottom: 10px;
+            }
+            .hero h1 {
+                font-family: var(--font);
+                font-weight: 800;
+                font-size: 29px;
+                color: var(--navy);
+                line-height: 1.32;
+                margin: 0 0 18px;
+                letter-spacing: -0.4px;
+            }
+            .checklist {
+                text-align: left;
+                background: var(--blue-tint);
+                border-radius: 14px;
+                padding: 20px 22px;
+                margin: 22px 0;
+            }
+            .checklist div {
+                font-size: 13.5px;
+                color: var(--navy);
+                margin-bottom: 9px;
+                display: flex;
+                gap: 10px;
+            }
+            .checklist div:last-child {
+                margin-bottom: 0;
+            }
+            .timepill {
+                display: inline-block;
+                font-size: 11.5px;
+                font-weight: 700;
+                color: var(--slate);
+                background: #f2f5fc;
+                border-radius: 20px;
+                padding: 7px 16px;
+                margin-bottom: 20px;
+            }
+
+            .resultwrap {
+                text-align: center;
+            }
+            .scorebadge {
+                font-family: var(--font);
+                font-weight: 900;
+                font-size: 64px;
+                color: var(--navy);
+                margin: 8px 0 2px;
+                letter-spacing: -1px;
+            }
+            .scoreof {
+                font-size: 13.5px;
+                color: var(--slate);
+                margin-bottom: 16px;
+            }
+            .bandtag {
+                display: inline-block;
+                font-size: 11.5px;
+                font-weight: 800;
+                letter-spacing: 0.7px;
+                text-transform: uppercase;
+                color: #fff;
+                padding: 7px 18px;
+                border-radius: 20px;
+                margin-bottom: 20px;
+            }
+            .gaugewrap {
+                margin: 10px 0 28px;
+            }
+            .gauge {
+                display: flex;
+                height: 15px;
+                border-radius: 9px;
+                overflow: hidden;
+                position: relative;
+            }
+            .gauge div {
+                flex: 1;
+            }
+            .gaugemarker {
+                position: relative;
+                height: 0;
+            }
+            .gaugemarker .arrow {
+                position: absolute;
+                top: -26px;
+                transform: translateX(-50%);
+                font-size: 17px;
+                color: var(--navy);
+            }
+            .resulttext {
+                text-align: left;
+                font-size: 14px;
+                line-height: 1.7;
+                color: var(--ink);
+                margin-bottom: 16px;
+            }
+            .taglist {
+                text-align: left;
+                margin-bottom: 20px;
+            }
+            .gaptag {
+                display: inline-block;
+                font-size: 11px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+                padding: 6px 14px;
+                border-radius: 20px;
+                margin-right: 8px;
+                margin-bottom: 8px;
+            }
+            .gaptag.primary {
+                background: var(--navy);
+                color: #fff;
+            }
+            .gaptag.secondary {
+                background: var(--blue-tint-2);
+                color: var(--blue-deep);
+            }
+            .gaptag.signal {
+                background: var(--amber-tint);
+                color: var(--amber);
+                border: 1px solid #e8d5b0;
+            }
+
+            .sectionlbl {
+                text-align: left;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 1.1px;
+                color: var(--blue);
+                font-weight: 800;
+                margin: 26px 0 12px;
+            }
+            .breakdown {
+                text-align: left;
+                margin-bottom: 8px;
+            }
+            .brow {
+                margin-bottom: 14px;
+            }
+            .brow .blabel {
+                display: flex;
+                justify-content: space-between;
+                font-size: 12.5px;
+                font-weight: 700;
+                color: var(--navy);
+                margin-bottom: 5px;
+            }
+            .brow .bval {
+                color: var(--slate);
+                font-weight: 600;
+            }
+            .btrack {
+                height: 9px;
+                background: var(--blue-tint-2);
+                border-radius: 6px;
+                overflow: hidden;
+            }
+            .bfill {
+                height: 100%;
+                border-radius: 6px;
+            }
+
+            .gapdetail {
+                text-align: left;
+                background: #f7f9fe;
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 16px 18px;
+                margin-bottom: 12px;
+            }
+            .gapdetail .gtitle {
+                font-size: 12px;
+                font-weight: 800;
+                color: var(--navy);
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+                margin-bottom: 6px;
+            }
+            .gapdetail p {
+                font-size: 13px;
+                color: var(--ink);
+                line-height: 1.6;
+                margin: 0;
+            }
+            .gapdetail.signalbox {
+                background: var(--amber-tint);
+                border-color: #e8d5b0;
+            }
+            .gapdetail.signalbox .gtitle {
+                color: var(--amber);
+            }
+
+            .nextbox {
+                background: var(--blue-tint);
+                border-radius: 12px;
+                padding: 18px 20px;
+                text-align: left;
+                margin-top: 10px;
+            }
+            .nextbox .lbl {
+                font-size: 10.5px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: var(--blue);
+                font-weight: 800;
+                margin-bottom: 6px;
+            }
+
+            .schedulebox {
+                background: var(--navy);
+                border-radius: 14px;
+                padding: 24px 22px;
+                text-align: center;
+                margin-top: 22px;
+            }
+            .schedulebox .stitle {
+                font-family: var(--font);
+                font-weight: 800;
+                font-size: 17px;
+                color: #fff;
+                margin-bottom: 8px;
+            }
+            .schedulebox p {
+                font-size: 12.5px;
+                color: #c6d3f5;
+                margin: 0 0 16px;
+                line-height: 1.6;
+            }
+            .schedulebtn {
+                display: inline-block;
+                background: #fff;
+                color: var(--navy);
+                text-decoration: none;
+                font-size: 13.5px;
+                font-weight: 800;
+                padding: 13px 26px;
+                border-radius: 30px;
+            }
+            .schedulebtn:hover {
+                background: var(--blue-tint);
+            }
+
+            .footnote {
+                font-size: 11.5px;
+                color: var(--slate);
+                margin-top: 24px;
+                text-align: center;
+                line-height: 1.6;
+            }
+
+            @media (max-width: 520px) {
+                #app {
+                    padding: 0 10px;
+                }
+                .card-panel {
+                    padding: 28px 20px;
+                }
+                .opt-grid.grid2 {
+                    grid-template-columns: 1fr;
+                }
+                h1.qtitle {
+                    font-size: 22px;
+                }
+                .scorebadge {
+                    font-size: 52px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <div class="progresshead" id="progresshead">
+                <div class="toprow">
+                    <div class="brand">Black<span>*</span>Cherie</div>
+                    <div class="stepcount" id="stepcount">Step 1 of 9</div>
+                </div>
+                <div class="progressbar"><div class="progressbar-fill" id="progressfill" style="width: 0%"></div></div>
+            </div>
+
+            <div class="stage" id="stage"></div>
+        </div>
+
+        <script>
+            /* =========================================================
+   CONFIG
+   ========================================================= */
+            const API_ENDPOINT = "/api/submissions"; // same-origin Node.js API
+            const SCHEDULE_URL = "__SCHEDULE_URL__"; // injected by the server from the SCHEDULE_URL env var — shown only when not "Aligned"
+
+            /* =========================================================
+   FULL QUESTION BANK — 33 questions across 8 diagnostic sections
+   ========================================================= */
+            const STEPS = [
+                { id: "intro", type: "intro" },
+
+                {
+                    id: "context",
+                    type: "section",
+                    title: "A little about the business",
+                    sub: "Context only — this section isn't scored.",
+                    fields: [
+                        {
+                            id: "role",
+                            q: "What is your role?",
+                            type: "radio",
+                            required: true,
+                            options: ["Founder", "Co-founder", "CEO", "Director", "Brand/Marketing leader", "Other"],
+                        },
+                        {
+                            id: "yearsOperating",
+                            q: "How long has the business been operating?",
+                            type: "radio",
+                            required: true,
+                            options: ["Less than 1 year", "1–3 years", "3–5 years", "5–10 years", "10+ years"],
+                        },
+                        {
+                            id: "brandAge",
+                            q: "How long has the current brand been in place?",
+                            type: "radio",
+                            required: true,
+                            options: ["Less than 1 year", "1–3 years", "3–5 years", "5–10 years", "10+ years", "I don't know"],
+                        },
+                        {
+                            id: "teamStructure",
+                            q: "What best describes your business today?",
+                            type: "radio",
+                            required: true,
+                            options: [
+                                "Primarily founder-led",
+                                "Small but growing team",
+                                "Established team with defined functions",
+                                "Multi-team / multi-location",
+                                "Mature organisation",
+                            ],
+                        },
+                    ],
+                },
+
+                {
+                    id: "evolution",
+                    type: "section",
+                    title: "Business Evolution",
+                    sub: "Has the business actually changed enough for brand–business misalignment to be plausible?",
+                    fields: [
+                        {
+                            id: "changed",
+                            q: "Which of these have materially changed since your current brand was created?",
+                            type: "checkbox",
+                            required: true,
+                            grid2: true,
+                            hint: "Select all that apply.",
+                            options: [
+                                "Target customer",
+                                "Products/services",
+                                "Pricing",
+                                "Business model",
+                                "Positioning",
+                                "Category/market",
+                                "Geographic reach",
+                                "Business scale",
+                                "Competitive environment",
+                                "Team/organisation",
+                                "Customer expectations",
+                                "Customer experience",
+                                "Technology/capabilities",
+                                "Business ambition",
+                                "Leadership structure",
+                                "Very little has changed",
+                            ],
+                        },
+                        {
+                            id: "howDifferent",
+                            q: "How different is the business today from the business your current brand was originally created for?",
+                            type: "scale",
+                            required: true,
+                            labels: [
+                                "Almost identical",
+                                "Slightly different",
+                                "Noticeably different",
+                                "Significantly different",
+                                "Almost a different business",
+                            ],
+                        },
+                        {
+                            id: "customerChanged",
+                            q: "How much has your target customer changed?",
+                            type: "scale",
+                            required: true,
+                            labels: ["Not at all", "Slightly", "Moderately", "Significantly", "Completely"],
+                        },
+                        {
+                            id: "offerChanged",
+                            q: "How much has your offer changed?",
+                            type: "scale",
+                            required: true,
+                            labels: ["Not at all", "Slightly", "Moderately", "Significantly", "Completely"],
+                        },
+                        {
+                            id: "ambitionChanged",
+                            q: "How much has your ambition for the business changed?",
+                            type: "scale",
+                            required: true,
+                            labels: ["Not at all", "Slightly", "Moderately", "Significantly", "Completely"],
+                        },
+                        {
+                            id: "competitionChanged",
+                            q: "Has the level of competition in your category changed since your current brand was created?",
+                            type: "radio",
+                            required: true,
+                            options: ["Not meaningfully", "Slightly", "Moderately", "Significantly", "Dramatically", "I'm not sure"],
+                        },
+                    ],
+                },
+
+                {
+                    id: "representation",
+                    type: "section",
+                    title: "Brand Representation",
+                    sub: "Does the existing brand represent the evolved business?",
+                    fields: [
+                        {
+                            id: "accuracy",
+                            q: "How accurately does your current brand communicate what your business has become?",
+                            type: "scale",
+                            required: true,
+                            reverse: true,
+                            labels: [
+                                "Not accurately at all",
+                                "Slightly accurately",
+                                "Moderately accurately",
+                                "Very accurately",
+                                "Extremely accurately",
+                            ],
+                        },
+                        {
+                            id: "confidence",
+                            q: "When someone encounters your brand for the first time, how confident are you that they understand what your business actually does?",
+                            type: "scale",
+                            required: true,
+                            reverse: true,
+                            labels: ["Not confident", "Slightly confident", "Moderately confident", "Very confident", "Extremely confident"],
+                        },
+                        {
+                            id: "clarityChoice",
+                            q: "How clearly does your current brand communicate why customers should choose you instead of alternatives?",
+                            type: "scale",
+                            required: true,
+                            reverse: true,
+                            labels: ["Not clearly", "Slightly clearly", "Moderately clearly", "Very clearly", "Extremely clearly"],
+                        },
+                        {
+                            id: "futureRep",
+                            q: "Does your current brand communicate the level of business you are trying to become?",
+                            type: "radio",
+                            required: true,
+                            reverseMap: true,
+                            options: ["Definitely not", "Probably not", "Unsure", "Mostly", "Definitely"],
+                        },
+                        {
+                            id: "brandStatement",
+                            q: "Which statement best describes your current brand?",
+                            type: "radio",
+                            required: true,
+                            scoreMap: {
+                                "It represents us extremely well.": 0,
+                                "It represents us reasonably well but has some gaps.": 1,
+                                "It represents where we used to be more than where we are.": 3,
+                                "It looks fine but doesn't communicate the business properly.": 3,
+                                "It actively makes the business appear less capable/differentiated than it is.": 4,
+                                "I'm not sure.": 2,
+                            },
+                            options: [
+                                "It represents us extremely well.",
+                                "It represents us reasonably well but has some gaps.",
+                                "It represents where we used to be more than where we are.",
+                                "It looks fine but doesn't communicate the business properly.",
+                                "It actively makes the business appear less capable/differentiated than it is.",
+                                "I'm not sure.",
+                            ],
+                        },
+                    ],
+                },
+
+                {
+                    id: "positioning",
+                    type: "section",
+                    title: "Positioning & Differentiation",
+                    sub: "Is the business clearly positioned and differentiated?",
+                    fields: [
+                        {
+                            id: "teamAlignment",
+                            q: "If you asked three people inside the company what the business should be known for, how similar would their answers be?",
+                            type: "scale",
+                            required: true,
+                            reverse: true,
+                            labels: ["Completely different", "Quite different", "Somewhat similar", "Mostly aligned", "Almost identical"],
+                        },
+                        {
+                            id: "easyExplain",
+                            q: "How easy is it for your team to explain what makes the business meaningfully different?",
+                            type: "scale",
+                            required: true,
+                            reverse: true,
+                            labels: ["Very difficult", "Difficult", "Neither easy nor difficult", "Easy", "Very easy"],
+                        },
+                        {
+                            id: "positionConfidence",
+                            q: "How confident are you that your current market position reflects where you want to compete?",
+                            type: "scale",
+                            required: true,
+                            reverse: true,
+                            labels: ["Not confident", "Slightly confident", "Moderately confident", "Very confident", "Extremely confident"],
+                        },
+                        {
+                            id: "differentiation",
+                            q: "Which statement best describes your differentiation?",
+                            type: "radio",
+                            required: true,
+                            scoreMap: {
+                                "Customers immediately understand why we're different.": 0,
+                                "Customers understand us after some explanation.": 1,
+                                "We are different, but it's difficult to communicate.": 2,
+                                "We have meaningful capabilities but look similar to competitors.": 3,
+                                "We're still figuring out what we should own in the market.": 4,
+                                "I'm not sure.": 2,
+                            },
+                            options: [
+                                "Customers immediately understand why we're different.",
+                                "Customers understand us after some explanation.",
+                                "We are different, but it's difficult to communicate.",
+                                "We have meaningful capabilities but look similar to competitors.",
+                                "We're still figuring out what we should own in the market.",
+                                "I'm not sure.",
+                            ],
+                        },
+                    ],
+                },
+
+                {
+                    id: "internal",
+                    type: "section",
+                    title: "Internal Alignment",
+                    sub: "Does the organisation understand and consistently represent the business?",
+                    fields: [
+                        {
+                            id: "consistency",
+                            q: "How consistently does your team communicate the business's positioning?",
+                            type: "scale",
+                            required: true,
+                            reverse: true,
+                            labels: [
+                                "Very inconsistently",
+                                "Somewhat inconsistently",
+                                "Moderately consistently",
+                                "Very consistently",
+                                "Extremely consistently",
+                            ],
+                        },
+                        {
+                            id: "explainFreq",
+                            q: "How often do you personally have to explain what makes the business different to prospects or customers?",
+                            type: "radio",
+                            required: true,
+                            scoreMap: { "Almost every time": 4, Often: 3, Sometimes: 2, Rarely: 1, "Almost never": 0 },
+                            options: ["Almost every time", "Often", "Sometimes", "Rarely", "Almost never"],
+                        },
+                        {
+                            id: "touchpointConsistency",
+                            q: "How consistent are your website, sales conversations, product/service experience and other touchpoints in communicating the same business?",
+                            type: "scale",
+                            required: true,
+                            reverse: true,
+                            labels: [
+                                "Very inconsistent",
+                                "Somewhat inconsistent",
+                                "Moderately consistent",
+                                "Very consistent",
+                                "Extremely consistent",
+                            ],
+                        },
+                        {
+                            id: "orgConfidence",
+                            q: "If you stopped explaining the business personally, how confident are you that the rest of the organisation could communicate its value accurately?",
+                            type: "scale",
+                            required: true,
+                            reverse: true,
+                            labels: ["Not confident", "Slightly confident", "Moderately confident", "Very confident", "Extremely confident"],
+                        },
+                    ],
+                },
+
+                {
+                    id: "perception",
+                    type: "section",
+                    title: "Market Perception",
+                    sub: "Is the market seeing the business the way you want it to be seen?",
+                    fields: [
+                        {
+                            id: "perceptionMatch",
+                            q: "How closely does customer perception match how you want the business to be perceived?",
+                            type: "scale",
+                            required: true,
+                            reverse: true,
+                            labels: ["Very different", "Somewhat different", "Moderately aligned", "Mostly aligned", "Almost identical"],
+                        },
+                        {
+                            id: "perceptionConfidence",
+                            q: "How confident are you that customers see you at the level at which you believe the business operates?",
+                            type: "scale",
+                            required: true,
+                            reverse: true,
+                            labels: ["Not confident", "Slightly confident", "Moderately confident", "Very confident", "Extremely confident"],
+                        },
+                        {
+                            id: "perceptionStatement",
+                            q: "Which statement best describes your market perception?",
+                            type: "radio",
+                            required: true,
+                            grid2: true,
+                            scoreMap: {
+                                "We are perceived exactly as we want.": 0,
+                                "Mostly right, with some gaps.": 1,
+                                "Customers understand what we do but not our value.": 2,
+                                "Customers see us as more generic than we are.": 3,
+                                "Customers perceive us as smaller/less capable than we are.": 3,
+                                "Customers perceive us differently from how we want to be positioned.": 4,
+                                "We don't really know.": 2,
+                            },
+                            options: [
+                                "We are perceived exactly as we want.",
+                                "Mostly right, with some gaps.",
+                                "Customers understand what we do but not our value.",
+                                "Customers see us as more generic than we are.",
+                                "Customers perceive us as smaller/less capable than we are.",
+                                "Customers perceive us differently from how we want to be positioned.",
+                                "We don't really know.",
+                            ],
+                        },
+                        {
+                            id: "misunderstandFreq",
+                            q: "How often do prospects misunderstand what your business actually offers?",
+                            type: "radio",
+                            required: true,
+                            scoreMap: { "Almost never": 0, Rarely: 1, Sometimes: 2, Often: 3, "Very often": 4 },
+                            options: ["Almost never", "Rarely", "Sometimes", "Often", "Very often"],
+                        },
+                    ],
+                },
+
+                {
+                    id: "future",
+                    type: "section",
+                    title: "Future Alignment",
+                    sub: "Is the current brand capable of representing where the business is going?",
+                    fields: [
+                        {
+                            id: "futureChange",
+                            q: "Over the next 2–3 years, how different do you expect the business to become?",
+                            type: "scale",
+                            required: true,
+                            labels: [
+                                "Very similar",
+                                "Slightly different",
+                                "Moderately different",
+                                "Significantly different",
+                                "Almost a different business",
+                            ],
+                        },
+                        {
+                            id: "futureCapable",
+                            q: "Does your current brand feel capable of representing that future business?",
+                            type: "radio",
+                            required: true,
+                            reverseMap: true,
+                            options: ["Definitely not", "Probably not", "Unsure", "Probably", "Definitely"],
+                        },
+                        {
+                            id: "futureTrigger",
+                            q: "Which change is most likely to affect how the business needs to be perceived in the future?",
+                            type: "radio",
+                            required: true,
+                            grid2: true,
+                            options: [
+                                "Moving upmarket",
+                                "Entering new markets",
+                                "Expanding the offer",
+                                "Becoming a category leader",
+                                "Increasing scale",
+                                "Changing the customer",
+                                "Increasing pricing",
+                                "Building a larger team",
+                                "Reducing founder dependency",
+                                "Expanding geographically",
+                                "Other",
+                                "Not sure",
+                            ],
+                        },
+                    ],
+                },
+
+                {
+                    id: "intent",
+                    type: "section",
+                    title: "Strategic Intent",
+                    sub: "This last section helps us understand where you're coming from — it isn't part of the score.",
+                    fields: [
+                        {
+                            id: "priorDiscussion",
+                            q: "Have you discussed changing or evolving the brand internally?",
+                            type: "radio",
+                            required: true,
+                            options: [
+                                "Never",
+                                "We've mentioned it casually",
+                                "We've discussed it seriously",
+                                "We've started planning",
+                                "We are actively looking for a partner",
+                                "We recently changed it",
+                            ],
+                        },
+                        {
+                            id: "trigger",
+                            q: "What prompted you to take this assessment today?",
+                            type: "radio",
+                            required: true,
+                            grid2: true,
+                            options: [
+                                "Curiosity",
+                                "We've noticed the brand feels dated",
+                                "The business has changed significantly",
+                                "We're targeting a different customer",
+                                "We're entering a new market",
+                                "We're repositioning the business",
+                                "Customers don't seem to understand us",
+                                "We look too similar to competitors",
+                                "We're considering a rebrand",
+                                "Someone internally recommended it",
+                                "Other",
+                            ],
+                        },
+                        {
+                            id: "changeOneThing",
+                            q: "If you could change one thing about how the market sees your business today, what would it be?",
+                            type: "textarea",
+                            required: true,
+                        },
+                    ],
+                },
+
+                {
+                    id: "contact",
+                    type: "contact",
+                    title: "Where should we send your Alignment Report?",
+                    sub: "Last step — your full breakdown will be emailed to you.",
+                    fields: [
+                        { id: "name", q: "Your name", type: "text", required: true },
+                        { id: "company", q: "Company name", type: "text", required: true },
+                        { id: "website", q: "Website", type: "text", required: false, hint: "Optional" },
+                        { id: "email", q: "Email address", type: "email", required: true },
+                    ],
+                },
+
+                { id: "result", type: "result" },
+            ];
+
+            const TOTAL_SECTIONS = STEPS.filter((s) => s.type === "section" || s.type === "contact").length;
+
+            /* =========================================================
+   STATE
+   ========================================================= */
+            let current = 0;
+            const answers = {};
+
+            function isStepComplete(step) {
+                if (step.type !== "section" && step.type !== "contact") return true;
+                return step.fields.every((f) => {
+                    if (!f.required) return true;
+                    const v = answers[f.id];
+                    if (f.type === "checkbox") return Array.isArray(v) && v.length > 0;
+                    if (f.type === "email") return v && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+                    return v !== undefined && v !== null && String(v).trim().length > 0;
+                });
+            }
+
+            /* =========================================================
+   RENDER
+   ========================================================= */
+            function render() {
+                const step = STEPS[current];
+                const stage = document.getElementById("stage");
+                document.getElementById("progresshead").style.display = step.type === "intro" || step.type === "result" ? "none" : "block";
+
+                if (step.type !== "intro" && step.type !== "result") {
+                    const sectionIndex = STEPS.slice(0, current + 1).filter((s) => s.type === "section" || s.type === "contact").length;
+                    document.getElementById("stepcount").textContent = `Step ${sectionIndex} of ${TOTAL_SECTIONS}`;
+                    document.getElementById("progressfill").style.width = `${(sectionIndex / TOTAL_SECTIONS) * 100}%`;
+                }
+
+                let html = "";
+
+                if (step.type === "intro") {
+                    html = `
+      <div class="card-panel hero">
+        <div class="mark">*</div>
+        <h1>How aligned is your brand<br>with the business you've built?</h1>
+        <p class="lead">Your business has probably changed since your current brand was created. Maybe your customers changed. Maybe your offer expanded. Maybe you've moved upmarket. Maybe your ambitions changed.</p>
+        <p class="lead"><strong style="color:var(--navy);">The question is: did the brand evolve with it?</strong></p>
+        <div class="timepill">⏱ Takes about 5–7 minutes</div>
+        <div class="checklist">
+          <div>✓ Your Business–Brand Alignment Score</div>
+          <div>✓ A full breakdown across six diagnostic dimensions</div>
+          <div>✓ Your primary and secondary alignment gaps</div>
+          <div>✓ What to investigate next</div>
+        </div>
+        <p style="font-size:12px; color:var(--slate); margin-bottom:24px;">This does not tell you that you need a rebrand. It tells you what's worth investigating.</p>
+        <button class="btn-next" onclick="goNext()">Start assessment</button>
+      </div>`;
+                } else if (step.type === "section" || step.type === "contact") {
+                    html = `<div class="card-panel">
+      <div class="eyebrow">${step.type === "contact" ? "Final step" : "Diagnostic"}</div>
+      <h1 class="qtitle">${step.title}</h1>
+      <p class="qsub">${step.sub}</p>`;
+                    step.fields.forEach((f) => (html += renderField(f)));
+                    html += `
+      <div class="req-note" id="reqnote">Please answer every question to continue.</div>
+      <div class="navrow">
+        <button class="btn-back" onclick="goBack()" ${current === 1 ? "disabled" : ""}>← Back</button>
+        <button class="btn-next" id="nextbtn" onclick="handleNext()">${step.type === "contact" ? "Get my Alignment Score" : "Continue"}</button>
+      </div>
+    </div>`;
+                } else if (step.type === "result") {
+                    html = renderResult(computeResult(answers));
+                }
+
+                stage.innerHTML = html;
+
+                if (step.type === "section" || step.type === "contact") {
+                    step.fields.forEach((f) => bindField(f));
+                    updateNextButton(step);
+                }
+
+                if (step.type === "result") {
+                    submitToBackend(answers, computeResult(answers));
+                }
+            }
+
+            function renderField(f) {
+                let inner = "";
+                const gridClass = f.grid2 ? " grid2" : "";
+                if (f.type === "radio") {
+                    inner =
+                        `<div class="opt-grid${gridClass}" data-field="${f.id}">` +
+                        f.options
+                            .map(
+                                (o) =>
+                                    `<div class="opt radio" data-value="${escapeAttr(o)}"><span class="box"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>${o}</div>`,
+                            )
+                            .join("") +
+                        `</div>`;
+                } else if (f.type === "checkbox") {
+                    inner =
+                        `<div class="opt-grid${gridClass}" data-field="${f.id}">` +
+                        f.options
+                            .map(
+                                (o) =>
+                                    `<div class="opt" data-value="${escapeAttr(o)}"><span class="box"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>${o}</div>`,
+                            )
+                            .join("") +
+                        `</div>`;
+                } else if (f.type === "scale") {
+                    inner =
+                        `<div class="scale-row" data-field="${f.id}">` +
+                        [1, 2, 3, 4, 5].map((n) => `<div class="scale-pill" data-value="${n}"><span class="num">${n}</span></div>`).join("") +
+                        `</div>
+      <div class="scale-labels"><span>${f.labels[0]}</span><span>${f.labels[4]}</span></div>`;
+                } else if (f.type === "text" || f.type === "email") {
+                    inner = `<input type="${f.type}" data-field="${f.id}" placeholder="${f.type === "email" ? "you@company.com" : ""}">`;
+                } else if (f.type === "textarea") {
+                    inner = `<textarea data-field="${f.id}" placeholder="Type your answer..."></textarea>`;
+                }
+                return `<div class="field">
+    <div class="field-q">${f.q}</div>
+    ${f.hint ? `<div class="field-hint">${f.hint}</div>` : ""}
+    ${inner}
+  </div>`;
+            }
+
+            function bindField(f) {
+                if (f.type === "text" || f.type === "email" || f.type === "textarea") {
+                    const tag = f.type === "textarea" ? "textarea" : "input";
+                    const el = document.querySelector(`${tag}[data-field="${f.id}"]`);
+                    if (el) {
+                        el.value = answers[f.id] || "";
+                        el.addEventListener("input", () => {
+                            answers[f.id] = el.value;
+                            updateNextButton(STEPS[current]);
+                        });
+                    }
+                    return;
+                }
+
+                const container = document.querySelector(`div.opt-grid[data-field="${f.id}"], div.scale-row[data-field="${f.id}"]`);
+                if (!container) return;
+
+                if (f.type === "radio") {
+                    container.querySelectorAll(".opt").forEach((el) => {
+                        if (answers[f.id] === el.dataset.value) el.classList.add("selected");
+                        el.addEventListener("click", () => {
+                            container.querySelectorAll(".opt").forEach((o) => o.classList.remove("selected"));
+                            el.classList.add("selected");
+                            answers[f.id] = el.dataset.value;
+                            updateNextButton(STEPS[current]);
+                        });
+                    });
+                } else if (f.type === "checkbox") {
+                    const currentVals = answers[f.id] || [];
+                    container.querySelectorAll(".opt").forEach((el) => {
+                        if (currentVals.includes(el.dataset.value)) el.classList.add("selected");
+                        el.addEventListener("click", () => {
+                            const val = el.dataset.value;
+                            let arr = answers[f.id] || [];
+                            if (val === "Very little has changed") {
+                                arr = arr.includes(val) ? [] : [val];
+                            } else {
+                                arr = arr.filter((v) => v !== "Very little has changed");
+                                if (arr.includes(val)) arr = arr.filter((v) => v !== val);
+                                else arr.push(val);
+                            }
+                            answers[f.id] = arr;
+                            container.querySelectorAll(".opt").forEach((o) => o.classList.toggle("selected", arr.includes(o.dataset.value)));
+                            updateNextButton(STEPS[current]);
+                        });
+                    });
+                } else if (f.type === "scale") {
+                    container.querySelectorAll(".scale-pill").forEach((el) => {
+                        if (String(answers[f.id]) === el.dataset.value) el.classList.add("selected");
+                        el.addEventListener("click", () => {
+                            container.querySelectorAll(".scale-pill").forEach((o) => o.classList.remove("selected"));
+                            el.classList.add("selected");
+                            answers[f.id] = Number(el.dataset.value);
+                            updateNextButton(STEPS[current]);
+                        });
+                    });
+                }
+            }
+
+            function escapeAttr(s) {
+                return s.replace(/"/g, "&quot;");
+            }
+
+            function updateNextButton(step) {
+                const btn = document.getElementById("nextbtn");
+                if (!btn) return;
+                btn.disabled = !isStepComplete(step);
+                const note = document.getElementById("reqnote");
+                if (note) note.classList.remove("show");
+            }
+
+            function handleNext() {
+                const step = STEPS[current];
+                if (!isStepComplete(step)) {
+                    document.getElementById("reqnote").classList.add("show");
+                    return;
+                }
+                goNext();
+            }
+
+            function goNext() {
+                current++;
+                window.scrollTo(0, 0);
+                render();
+            }
+            function goBack() {
+                current--;
+                window.scrollTo(0, 0);
+                render();
+            }
+
+            /* =========================================================
+   SCORING ENGINE — six weighted dimensions, full 33-question bank
+   ========================================================= */
+            function scaleScore(val, reverse) {
+                const base = val - 1;
+                return reverse ? 4 - base : base;
+            }
+            function reverseMapScore(val, options) {
+                const idx = options.indexOf(val);
+                return 4 - idx;
+            }
+
+            const PROFILE_NAMES = {
+                A: "Business Evolution Gap",
+                B: "Brand Representation Gap",
+                C: "Positioning Gap",
+                D: "Internal Alignment Gap",
+                E: "Perception Gap",
+                F: "Future Alignment Gap",
+            };
+
+            const PROFILE_DETAILS = {
+                "Business Evolution Gap":
+                    "The business has changed substantially — new customers, offers, or ambitions — but the brand still communicates an earlier version of it. Worth investigating which specific changes have outpaced the brand.",
+                "Brand Representation Gap":
+                    "The brand doesn't yet reflect the level of business you've built. This is rarely a visual problem alone — usually the message inside the brand hasn't caught up to what the business can now do.",
+                "Positioning Gap":
+                    "The core issue may be what the business owns in the market, not how the brand looks. If the team can't consistently explain what makes you different, a visual refresh won't fix that on its own.",
+                "Internal Alignment Gap":
+                    "There isn't a single, consistently understood version of what the business stands for inside the company itself — and that inconsistency shows up externally before anyone touches the brand.",
+                "Perception Gap":
+                    "The business may be stronger than the market currently perceives it to be. Usually a communication and proof problem rather than a visual one — worth investigating before any redesign.",
+                "Future Alignment Gap":
+                    "The brand may work today, but it isn't clearly built to carry the business toward where it's headed. Not broken yet — but a constraint that's building.",
+            };
+
+            const FOUNDER_SIGNAL_TEXT =
+                "Too much of the business's meaning may still live inside you personally rather than inside the organisation and brand. This is a signal worth watching, not a definitive diagnosis.";
+
+            function computeResult(a) {
+                // Dimension A — Business Evolution (20%): Q5(count) + Q6 + Q7 + Q8 + Q9 + Q10
+                const changed = (a.changed || []).filter((v) => v !== "Very little has changed");
+                const n = changed.length;
+                let changeScore;
+                if (n === 0) changeScore = 0;
+                else if (n <= 3) changeScore = 1;
+                else if (n <= 6) changeScore = 2;
+                else if (n <= 9) changeScore = 3;
+                else changeScore = 4;
+
+                const competitionMap = { "Not meaningfully": 0, Slightly: 1, Moderately: 2, Significantly: 3, Dramatically: 4, "I'm not sure": 1 };
+                const A = avg([
+                    changeScore,
+                    a.howDifferent !== undefined ? scaleScore(a.howDifferent, false) : 0,
+                    a.customerChanged !== undefined ? scaleScore(a.customerChanged, false) : 0,
+                    a.offerChanged !== undefined ? scaleScore(a.offerChanged, false) : 0,
+                    a.ambitionChanged !== undefined ? scaleScore(a.ambitionChanged, false) : 0,
+                    a.competitionChanged ? (competitionMap[a.competitionChanged] ?? 0) : 0,
+                ]);
+
+                // Dimension B — Brand Representation (25%): Q11-Q15
+                const brandStatementMap = {
+                    "It represents us extremely well.": 0,
+                    "It represents us reasonably well but has some gaps.": 1,
+                    "It represents where we used to be more than where we are.": 3,
+                    "It looks fine but doesn't communicate the business properly.": 3,
+                    "It actively makes the business appear less capable/differentiated than it is.": 4,
+                    "I'm not sure.": 2,
+                };
+                const B = avg([
+                    a.accuracy !== undefined ? scaleScore(a.accuracy, true) : 0,
+                    a.confidence !== undefined ? scaleScore(a.confidence, true) : 0,
+                    a.clarityChoice !== undefined ? scaleScore(a.clarityChoice, true) : 0,
+                    a.futureRep ? reverseMapScore(a.futureRep, ["Definitely not", "Probably not", "Unsure", "Mostly", "Definitely"]) : 0,
+                    a.brandStatement !== undefined ? (brandStatementMap[a.brandStatement] ?? 0) : 0,
+                ]);
+
+                // Dimension C — Strategic Clarity / Positioning (15%): Q16-Q19
+                const diffMap = {
+                    "Customers immediately understand why we're different.": 0,
+                    "Customers understand us after some explanation.": 1,
+                    "We are different, but it's difficult to communicate.": 2,
+                    "We have meaningful capabilities but look similar to competitors.": 3,
+                    "We're still figuring out what we should own in the market.": 4,
+                    "I'm not sure.": 2,
+                };
+                const C = avg([
+                    a.teamAlignment !== undefined ? scaleScore(a.teamAlignment, true) : 0,
+                    a.easyExplain !== undefined ? scaleScore(a.easyExplain, true) : 0,
+                    a.positionConfidence !== undefined ? scaleScore(a.positionConfidence, true) : 0,
+                    a.differentiation !== undefined ? (diffMap[a.differentiation] ?? 0) : 0,
+                ]);
+
+                // Dimension D — Internal Alignment (15%): Q20-Q23
+                const explainMap = { "Almost every time": 4, Often: 3, Sometimes: 2, Rarely: 1, "Almost never": 0 };
+                const explainScore = a.explainFreq ? (explainMap[a.explainFreq] ?? 0) : 0;
+                const orgScore = a.orgConfidence !== undefined ? scaleScore(a.orgConfidence, true) : 0;
+                const D = avg([
+                    a.consistency !== undefined ? scaleScore(a.consistency, true) : 0,
+                    explainScore,
+                    a.touchpointConsistency !== undefined ? scaleScore(a.touchpointConsistency, true) : 0,
+                    orgScore,
+                ]);
+                const founderSignal = explainScore >= 3 && orgScore >= 3;
+
+                // Dimension E — Market Perception (15%): Q24-Q27
+                const percMap = {
+                    "We are perceived exactly as we want.": 0,
+                    "Mostly right, with some gaps.": 1,
+                    "Customers understand what we do but not our value.": 2,
+                    "Customers see us as more generic than we are.": 3,
+                    "Customers perceive us as smaller/less capable than we are.": 3,
+                    "Customers perceive us differently from how we want to be positioned.": 4,
+                    "We don't really know.": 2,
+                };
+                const misunderstandMap = { "Almost never": 0, Rarely: 1, Sometimes: 2, Often: 3, "Very often": 4 };
+                const E = avg([
+                    a.perceptionMatch !== undefined ? scaleScore(a.perceptionMatch, true) : 0,
+                    a.perceptionConfidence !== undefined ? scaleScore(a.perceptionConfidence, true) : 0,
+                    a.perceptionStatement ? (percMap[a.perceptionStatement] ?? 0) : 0,
+                    a.misunderstandFreq ? (misunderstandMap[a.misunderstandFreq] ?? 0) : 0,
+                ]);
+
+                // Dimension F — Future Alignment (10%): Q28-Q29 only (Q30 is classification, not scored)
+                const F = avg([
+                    a.futureChange !== undefined ? scaleScore(a.futureChange, false) : 0,
+                    a.futureCapable ? reverseMapScore(a.futureCapable, ["Definitely not", "Probably not", "Unsure", "Probably", "Definitely"]) : 0,
+                ]);
+
+                const dims = { A: (A / 4) * 100, B: (B / 4) * 100, C: (C / 4) * 100, D: (D / 4) * 100, E: (E / 4) * 100, F: (F / 4) * 100 };
+                const pressure = dims.A * 0.2 + dims.B * 0.25 + dims.C * 0.15 + dims.D * 0.15 + dims.E * 0.15 + dims.F * 0.1;
+                const score = Math.round(Math.max(0, Math.min(100, 100 - pressure)));
+
+                const ranked = Object.entries(dims).sort((x, y) => y[1] - x[1]);
+                const primary = PROFILE_NAMES[ranked[0][0]];
+                const secondary = ranked[1][1] > 25 ? PROFILE_NAMES[ranked[1][0]] : null;
+
+                let band, headline, interpretation, nextStep;
+                if (score >= 80) {
+                    band = { label: "Aligned", color: "#1E7D5C" };
+                    headline = "Your business and brand appear to be evolving together.";
+                    interpretation =
+                        "The business may have changed, but the current brand appears capable of representing it. The key question now isn't whether you need a rebrand — it's what could create misalignment next.";
+                    nextStep = "Protect the alignment: keep monitoring customer evolution, offer changes, and competitive pressure.";
+                } else if (score >= 60) {
+                    band = { label: "Evolving", color: "#3D68F0" };
+                    headline = "Your business is evolving faster than parts of your brand.";
+                    interpretation =
+                        "There are signs of evolutionary pressure. The brand may not be fundamentally broken, but some aspects may no longer represent the business as accurately as they once did.";
+                    nextStep =
+                        "Identify which parts of the business have changed, and whether that requires a corresponding shift in positioning, perception, or brand expression.";
+                } else if (score >= 40) {
+                    band = { label: "Perception Gap", color: "#B4791F" };
+                    headline = "There appears to be a meaningful gap between the business you've built and how it's represented.";
+                    interpretation =
+                        "The issue may not primarily be visual. The stronger signal is that the business's capabilities, positioning, or ambitions aren't being translated into market perception.";
+                    nextStep = "Investigate positioning and perception before deciding what should change visually.";
+                } else {
+                    band = { label: "Misaligned", color: "#C4432B" };
+                    headline = "Your business appears to have materially outgrown the brand representing it.";
+                    interpretation =
+                        "There's substantial evidence of business evolution combined with brand, market, or internal misalignment. This doesn't automatically mean you need a rebrand — the real question is what actually needs to change.";
+                    nextStep =
+                        "Investigate the underlying business, positioning, and perception gaps before deciding what kind of intervention is required.";
+                }
+
+                return { score, band, headline, interpretation, nextStep, primary, secondary, founderSignal, dims };
+            }
+
+            function avg(arr) {
+                return arr.reduce((x, y) => x + y, 0) / arr.length;
+            }
+
+            function dimColor(pct) {
+                if (pct >= 65) return "#C4432B";
+                if (pct >= 45) return "#B4791F";
+                if (pct >= 25) return "#3D68F0";
+                return "#1E7D5C";
+            }
+
+            const DIM_LABELS = {
+                A: "Business Evolution",
+                B: "Brand Representation",
+                C: "Positioning & Clarity",
+                D: "Internal Alignment",
+                E: "Market Perception",
+                F: "Future Alignment",
+            };
+
+            /* =========================================================
+   RESULT SCREEN
+   ========================================================= */
+            function renderResult(r) {
+                const breakdownRows = Object.entries(r.dims)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(
+                        ([k, v]) => `
+    <div class="brow">
+      <div class="blabel"><span>${DIM_LABELS[k]}</span><span class="bval">${Math.round(v)}% pressure</span></div>
+      <div class="btrack"><div class="bfill" style="width:${Math.round(v)}%; background:${dimColor(v)};"></div></div>
+    </div>`,
+                    )
+                    .join("");
+
+                const gapDetails = `
+    <div class="gapdetail">
+      <div class="gtitle">Primary — ${r.primary}</div>
+      <p>${PROFILE_DETAILS[r.primary]}</p>
+    </div>
+    ${
+        r.secondary
+            ? `<div class="gapdetail">
+      <div class="gtitle">Secondary — ${r.secondary}</div>
+      <p>${PROFILE_DETAILS[r.secondary]}</p>
+    </div>`
+            : ""
+    }
+    ${
+        r.founderSignal
+            ? `<div class="gapdetail signalbox">
+      <div class="gtitle">Also flagged — Founder Dependency Signal</div>
+      <p>${FOUNDER_SIGNAL_TEXT}</p>
+    </div>`
+            : ""
+    }`;
+
+                const scheduleBlock =
+                    r.band.label !== "Aligned" && SCHEDULE_URL
+                        ? `
+    <div class="schedulebox">
+      <div class="stitle">Want a second pair of eyes on this?</div>
+      <p>Your result suggests there's enough signal here to talk it through. This is a strategic conversation, not a sales pitch.</p>
+      <a class="schedulebtn" href="${SCHEDULE_URL}" target="_blank" rel="noopener">Schedule a conversation →</a>
+    </div>`
+                        : "";
+
+                return `
+    <div class="card-panel resultwrap">
+      <div class="eyebrow" style="text-align:left;">Your Business–Brand Alignment Score</div>
+      <div class="scorebadge">${r.score}</div>
+      <div class="scoreof">out of 100</div>
+      <div class="bandtag" style="background:${r.band.color};">${r.band.label}</div>
+      <div class="gaugewrap">
+        <div class="gauge">
+          <div style="background:#C4432B;"></div><div style="background:#B4791F;"></div><div style="background:#3D68F0;"></div><div style="background:#1E7D5C;"></div>
+        </div>
+        <div class="gaugemarker"><div class="arrow" style="left:${r.score}%;">▲</div></div>
+      </div>
+      <p class="resulttext"><strong>${r.headline}</strong></p>
+      <p class="resulttext">${r.interpretation}</p>
+      <div class="taglist">
+        <span class="gaptag primary">Primary — ${r.primary}</span>
+        ${r.secondary ? `<span class="gaptag secondary">Secondary — ${r.secondary}</span>` : ""}
+        ${r.founderSignal ? `<span class="gaptag signal">Founder Dependency Signal</span>` : ""}
+      </div>
+
+      <div class="sectionlbl">Where the pressure is coming from</div>
+      <div class="breakdown">${breakdownRows}</div>
+
+      <div class="sectionlbl">What each gap means</div>
+      ${gapDetails}
+
+      <div class="nextbox">
+        <div class="lbl">What to investigate next</div>
+        <p style="margin:0; font-size:13px; color:var(--navy);">${r.nextStep}</p>
+      </div>
+
+      ${scheduleBlock}
+
+      <p class="footnote">This score does not mean you need a rebrand — it means there's enough signal here to investigate further.<br><strong>Your full report has been sent to ${answers.email || "your email"}.</strong></p>
+    </div>`;
+            }
+
+            /* =========================================================
+   SUBMISSION — POSTs to the Node API (stores in MongoDB + emails scorecard)
+   ========================================================= */
+            const SUBMISSION_ID =
+                window.crypto && crypto.randomUUID ? crypto.randomUUID() : "sub-" + Date.now() + "-" + Math.random().toString(16).slice(2);
+            let submitted = false;
+
+            function submitToBackend(a, r, attempt) {
+                attempt = attempt || 1;
+                if (submitted && attempt === 1) return;
+                submitted = true;
+                fetch(API_ENDPOINT, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ submissionId: SUBMISSION_ID, answers: a }),
+                })
+                    .then((res) => {
+                        if (!res.ok) throw new Error("HTTP " + res.status);
+                    })
+                    .catch((err) => {
+                        console.error("Submission failed:", err);
+                        if (attempt < 3) setTimeout(() => submitToBackend(a, r, attempt + 1), 3000 * attempt);
+                    });
+            }
+
+            render();
+        </script>
+    </body>
+</html>

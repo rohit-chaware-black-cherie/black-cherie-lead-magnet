@@ -1,0 +1,18 @@
+{
+  "name": "blackcherie-alignment-flow",
+  "version": "1.0.0",
+  "description": "Alignment Score form: serve form, save to MongoDB, email scorecard",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.6.0",
+    "nodemailer": "^6.9.15"
+  }
+}
