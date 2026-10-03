@@ -52,6 +52,9 @@ async function sendScorecard(submission) {
   });
 
   const responseBody = await response.text();
+
+  console.log(`Brevo Response: ${responseBody}`);
+  
   if (!response.ok) {
     throw new Error(`Brevo ${response.status}: ${responseBody || response.statusText}`);
   }
