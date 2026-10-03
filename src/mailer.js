@@ -13,12 +13,12 @@ async function sendScorecard(submission) {
 
   const attachments = [];
   if (config.guidePdfPath) {
-    const p = path.resolve(config.guidePdfPath);
-    if (fs.existsSync(p)) {
-    attachments.push({
-      filename: path.basename(p),
-      content: fs.readFileSync(p).toString("base64"),
-    });
+    const filePath = path.resolve(config.guidePdfPath);
+    if (fs.existsSync(filePath)) {
+      attachments.push({
+        name: path.basename(filePath),
+        content: fs.readFileSync(filePath).toString("base64"),
+      });
     }
   }
 
@@ -27,47 +27,47 @@ async function sendScorecard(submission) {
     return "dry-run";
   }
   if (!config.mail.apiKey) {
-    throw new Error("RESEND_API_KEY is not configured");
+    throw new Error("BREVO_API_KEY is not configured");
   }
   if (!config.mail.fromAddress) {
     throw new Error("SENDER_EMAIL is not configured");
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
-    Authorization: `Bearer ${config.mail.apiKey}`,
-    "Content-Type": "application/json",
+      "api-key": config.mail.apiKey,
+      "content-type": "application/json",
     },
     signal: AbortSignal.timeout(15_000),
     body: JSON.stringify({
-    from: `${config.mail.fromName} <${config.mail.fromAddress}>`,
-    to: [submission.email],
-    reply_to: config.mail.replyTo,
-    subject,
-    html,
-    text,
-    attachments,
+      sender: { name: config.mail.fromName, email: config.mail.fromAddress },
+      to: [{ email: submission.email }],
+      ...(config.mail.replyTo ? { replyTo: { email: config.mail.replyTo } } : {}),
+      subject,
+      htmlContent: html,
+      textContent: text,
+      ...(attachments.length ? { attachment: attachments } : {}),
     }),
   });
 
   const responseBody = await response.text();
   if (!response.ok) {
-    throw new Error(`Resend API request failed (${response.status}): ${responseBody || response.statusText}`);
+    throw new Error(`Brevo ${response.status}: ${responseBody || response.statusText}`);
   }
 
   let result;
   try {
     result = JSON.parse(responseBody);
   } catch (err) {
-    throw new Error(`Resend API returned invalid JSON: ${err.message}`);
+    throw new Error(`Brevo returned invalid JSON: ${err.message}`);
   }
-  if (!result.id) {
-    throw new Error("Resend API response did not include an email ID");
+  if (!result.messageId) {
+    throw new Error("Brevo response did not include a message ID");
   }
 
   console.log("[sendScorecard] : execution finished");
-  return result.id;
+  return result.messageId;
 }
 
 module.exports = { sendScorecard };

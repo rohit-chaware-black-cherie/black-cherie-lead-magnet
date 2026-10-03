@@ -13,7 +13,7 @@ module.exports = {
     fromName: process.env.MAIL_FROM_NAME || "Black*Cherie",
     fromAddress: senderEmail,
     replyTo: process.env.MAIL_REPLY_TO || senderEmail,
-    apiKey: process.env.RESEND_API_KEY || "",
+    apiKey: process.env.BREVO_API_KEY || "",
     dryRun: bool(process.env.EMAIL_DRY_RUN, false),
   },
   scheduleUrl: process.env.SCHEDULE_URL || "",

@@ -18,13 +18,13 @@ npm test
 Set `EMAIL_DRY_RUN=true` locally to log emails without sending.
 Health check: `GET /health`.
 
-## Email delivery on Render
-Emails are sent through the Resend HTTPS API. Create a Resend API key and verify the sending domain, then add these environment variables to the Render web service:
+## Email delivery
+Email is sent through the Brevo HTTPS API. Create a Brevo API key, verify your sender address/domain in Brevo, then add these environment variables to the deployment:
 
-- `RESEND_API_KEY` — Resend API key
-- `SENDER_EMAIL` — sender address on the verified domain
+- `BREVO_API_KEY` — Brevo API key
+- `SENDER_EMAIL` — sender address verified in Brevo
 - `MAIL_FROM_NAME` — optional sender display name
 - `MAIL_REPLY_TO` — optional reply-to address
 - `EMAIL_DRY_RUN=false`
 
-Do not configure Gmail SMTP credentials; Render deployments use Resend over HTTPS.
+Brevo is called over HTTPS, so the app does not need outbound SMTP access. The sender must meet Brevo's verification requirements to send to other recipients.

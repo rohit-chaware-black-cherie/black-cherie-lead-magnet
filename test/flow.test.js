@@ -98,20 +98,21 @@ test("form confirms by email instead of showing on-page score", () => {
   assert.ok(!html.includes("function renderResult"));
 });
 
-test("mailer sends scorecard using the Resend HTTPS API", async () => {
+test("mailer sends scorecard using Brevo HTTPS API", async () => {
   const config = require("../src/config");
   const { sendScorecard } = require("../src/mailer");
   const oldMail = { ...config.mail };
   const oldFetch = global.fetch;
   let request;
 
-  config.mail.apiKey = "test-api-key";
+  config.mail.apiKey = "test-brevo-api-key";
+  config.mail.fromName = "Test Sender";
   config.mail.fromAddress = "reports@example.com";
-  config.mail.replyTo = "hello@example.com";
+  config.mail.replyTo = "reply@example.com";
   config.mail.dryRun = false;
   global.fetch = async (url, options) => {
     request = { url, options };
-    return new Response(JSON.stringify({ id: "email-id" }), { status: 200 });
+    return new Response(JSON.stringify({ messageId: "email-id" }), { status: 201 });
   };
 
   try {
@@ -121,13 +122,13 @@ test("mailer sends scorecard using the Resend HTTPS API", async () => {
       dims: { A: 55, B: 62, C: 48, D: 40, E: 45, F: 50 },
     });
     assert.strictEqual(result, "email-id");
-    assert.strictEqual(request.url, "https://api.resend.com/emails");
-    assert.strictEqual(request.options.headers.Authorization, "Bearer test-api-key");
+    assert.strictEqual(request.url, "https://api.brevo.com/v3/smtp/email");
+    assert.strictEqual(request.options.headers["api-key"], "test-brevo-api-key");
     const body = JSON.parse(request.options.body);
-    assert.strictEqual(body.from, "Black*Cherie <reports@example.com>");
-    assert.deepStrictEqual(body.to, ["founder@example.net"]);
-    assert.strictEqual(body.reply_to, "hello@example.com");
-    assert.ok(body.html && body.text);
+    assert.deepStrictEqual(body.sender, { name: "Test Sender", email: "reports@example.com" });
+    assert.deepStrictEqual(body.to, [{ email: "founder@example.net" }]);
+    assert.deepStrictEqual(body.replyTo, { email: "reply@example.com" });
+    assert.ok(body.htmlContent && body.textContent);
   } finally {
     config.mail = oldMail;
     global.fetch = oldFetch;
