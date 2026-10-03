@@ -8,19 +8,13 @@ async function sendScorecard(submission) {
   console.log("[sendScorecard] : sending HTML scorecard email");
   const { subject, html, text } = buildScorecard(submission, {
     scheduleUrl: config.scheduleUrl,
-    brandEvolutionTestUrl: config.brandEvolutionTestUrl,
   });
 
-  const attachments = [];
-  if (config.guidePdfPath) {
-    const filePath = path.resolve(config.guidePdfPath);
-    if (fs.existsSync(filePath)) {
-      attachments.push({
-        name: path.basename(filePath),
-        content: fs.readFileSync(filePath).toString("base64"),
-      });
-    }
-  }
+  const filePath = path.resolve(config.guidePdfPath);
+  const attachments = [{
+    name: path.basename(filePath),
+    content: fs.readFileSync(filePath).toString("base64"),
+  }];
 
   if (config.mail.dryRun) {
     console.log(`[mail:dry-run] would send "${subject}" to ${submission.email}`);
@@ -47,7 +41,7 @@ async function sendScorecard(submission) {
       subject,
       htmlContent: html,
       textContent: text,
-      ...(attachments.length ? { attachment: attachments } : {}),
+      attachment: attachments,
     }),
   });
 

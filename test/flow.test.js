@@ -64,6 +64,13 @@ test("validation accepts a complete payload and normalises email", () => {
   const v = validateSubmission({ submissionId: "abc12345-uuid", answers: randomAnswers(1) });
   assert.ok(v.ok, JSON.stringify(v.errors));
   assert.strictEqual(v.value.answers.email, "t@example.com");
+  assert.strictEqual(v.value.answers.newsletterOptIn, false);
+  const optedIn = validateSubmission({
+    submissionId: "abc12345-optin",
+    answers: { ...randomAnswers(1), newsletterOptIn: true },
+  });
+  assert.ok(optedIn.ok, JSON.stringify(optedIn.errors));
+  assert.strictEqual(optedIn.value.answers.newsletterOptIn, true);
 });
 
 test("validation rejects bad email, out-of-range scale and missing id", () => {
@@ -75,6 +82,12 @@ test("validation rejects bad email, out-of-range scale and missing id", () => {
   assert.ok(v.errors.some((e) => /email/.test(e)));
   assert.ok(v.errors.some((e) => /accuracy/.test(e)));
   assert.ok(v.errors.some((e) => /submissionId/.test(e)));
+  const badConsent = validateSubmission({
+    submissionId: "abc12345-invalid",
+    answers: { ...randomAnswers(2), newsletterOptIn: "yes" },
+  });
+  assert.ok(!badConsent.ok);
+  assert.ok(badConsent.errors.some((e) => /newsletterOptIn/.test(e)));
 });
 
 test("scorecard email renders full HTML report and escapes", () => {
@@ -83,11 +96,13 @@ test("scorecard email renders full HTML report and escapes", () => {
     primary: "Brand Representation Gap", secondary: "Positioning Gap",
     founderSignal: true, dims: { A: 55, B: 62, C: 48, D: 40, E: 45, F: 50 },
   };
-  const m = buildScorecard(base, { scheduleUrl: "https://cal.com/x", brandEvolutionTestUrl: "https://t.co" });
+  const m = buildScorecard(base, { scheduleUrl: "https://cal.com/x" });
   assert.match(m.subject, /41\/100/);
   assert.ok(!m.html.includes("<b>Eve</b>") && m.html.includes("&lt;b&gt;Eve"));
   assert.ok(m.html.includes("Where the pressure is coming from"));
+  assert.ok(m.html.includes("The Business–Brand Alignment Guide PDF is attached"));
   assert.ok(m.html.includes("Schedule a conversation"));
+  assert.ok(!m.html.includes("Take the Brand Evolution Test"));
   assert.ok(m.html.includes("Founder Dependency Signal"));
   const aligned = buildScorecard({ ...base, band: "Aligned", score: 90 }, { scheduleUrl: "https://cal.com/x" });
   assert.ok(!aligned.html.includes("Schedule a conversation"));
@@ -102,9 +117,11 @@ test("mailer sends scorecard using Brevo HTTPS API", async () => {
   const config = require("../src/config");
   const { sendScorecard } = require("../src/mailer");
   const oldMail = { ...config.mail };
+  const oldGuidePdfPath = config.guidePdfPath;
   const oldFetch = global.fetch;
   let request;
 
+  config.guidePdfPath = path.join(__dirname, "..", "assets", "The Business–Brand Alignment Guide BlackCherie.pdf");
   config.mail.apiKey = "test-brevo-api-key";
   config.mail.fromName = "Test Sender";
   config.mail.fromAddress = "reports@example.com";
@@ -129,8 +146,15 @@ test("mailer sends scorecard using Brevo HTTPS API", async () => {
     assert.deepStrictEqual(body.to, [{ email: "founder@example.net" }]);
     assert.deepStrictEqual(body.replyTo, { email: "reply@example.com" });
     assert.ok(body.htmlContent && body.textContent);
+    assert.strictEqual(body.attachment.length, 1);
+    assert.strictEqual(body.attachment[0].name, path.basename(config.guidePdfPath));
+    assert.strictEqual(
+      Buffer.from(body.attachment[0].content, "base64").toString("base64"),
+      fs.readFileSync(config.guidePdfPath).toString("base64"),
+    );
   } finally {
     config.mail = oldMail;
+    config.guidePdfPath = oldGuidePdfPath;
     global.fetch = oldFetch;
   }
 });
@@ -167,10 +191,15 @@ test("HTTP: serves form and accepts submissions", async () => {
     const ok = await fetch(base + "/api/submissions", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ submissionId: "uuid-1234-5678", answers: randomAnswers(5) }),
+      body: JSON.stringify({
+        submissionId: "uuid-1234-5678",
+        answers: { ...randomAnswers(5), newsletterOptIn: true },
+      }),
     });
     assert.strictEqual(ok.status, 201);
     assert.strictEqual(created.length, 1);
+    assert.strictEqual(created[0].newsletterOptIn, true);
+    assert.ok(created[0].newsletterOptInAt instanceof Date);
     assert.deepStrictEqual(sent, ["t@example.com"]);
   } finally {
     server.close();

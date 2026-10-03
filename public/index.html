@@ -274,6 +274,20 @@
             textarea:focus {
                 border-color: var(--blue);
             }
+            .consent-option {
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                color: var(--slate);
+                font-size: 13px;
+                line-height: 1.5;
+                cursor: pointer;
+            }
+            .consent-option input {
+                flex: 0 0 auto;
+                margin: 3px 0 0;
+                accent-color: var(--blue);
+            }
             textarea {
                 min-height: 110px;
                 resize: vertical;
@@ -1097,6 +1111,13 @@
                         { id: "company", q: "Company name", type: "text", required: true },
                         { id: "website", q: "Website", type: "text", required: false, hint: "Optional" },
                         { id: "email", q: "Email address", type: "email", required: true },
+                        {
+                            id: "newsletterOptIn",
+                            q: "Yes, email me the Black*Cherie newsletter when it launches. I can unsubscribe at any time.",
+                            type: "consent",
+                            required: false,
+                            hint: "Optional. Your report will be emailed whether or not you subscribe.",
+                        },
                     ],
                 },
 
@@ -1211,17 +1232,30 @@
       <div class="scale-labels"><span>${f.labels[0]}</span><span>${f.labels[4]}</span></div>`;
                 } else if (f.type === "text" || f.type === "email") {
                     inner = `<input type="${f.type}" data-field="${f.id}" placeholder="${f.type === "email" ? "you@company.com" : ""}">`;
+                } else if (f.type === "consent") {
+                    inner = `<label class="consent-option"><input type="checkbox" data-field="${f.id}"><span>${f.q}</span></label>`;
                 } else if (f.type === "textarea") {
                     inner = `<textarea data-field="${f.id}" placeholder="Type your answer..."></textarea>`;
                 }
                 return `<div class="field">
-    <div class="field-q">${f.q}</div>
+    ${f.type === "consent" ? "" : `<div class="field-q">${f.q}</div>`}
     ${f.hint ? `<div class="field-hint">${f.hint}</div>` : ""}
     ${inner}
   </div>`;
             }
 
             function bindField(f) {
+                if (f.type === "consent") {
+                    const el = document.querySelector(`input[type="checkbox"][data-field="${f.id}"]`);
+                    if (el) {
+                        el.checked = answers[f.id] === true;
+                        el.addEventListener("change", () => {
+                            answers[f.id] = el.checked;
+                            updateNextButton(STEPS[current]);
+                        });
+                    }
+                    return;
+                }
                 if (f.type === "text" || f.type === "email" || f.type === "textarea") {
                     const tag = f.type === "textarea" ? "textarea" : "input";
                     const el = document.querySelector(`${tag}[data-field="${f.id}"]`);
@@ -1514,7 +1548,7 @@
     <div class="card-panel resultwrap" style="text-align:center;">
       <div class="mark" style="margin:0 auto 18px;">*</div>
       <h1 class="qtitle" style="text-align:center;">Your report is on its way</h1>
-      <p class="resulttext" style="text-align:center;">We've emailed your Business–Brand Alignment Scorecard (PDF) to <strong>${email}</strong>.</p>
+      <p class="resulttext" style="text-align:center;">We've emailed your Business–Brand Alignment Scorecard and guide PDF to <strong>${email}</strong>.</p>
       <p class="resulttext" style="text-align:center;">Check your inbox in the next few minutes — and your spam folder if you don't see it.</p>
       <p class="footnote" style="text-align:center;margin-top:28px;">This score does not mean you need a rebrand — it means there's enough signal to investigate further.</p>
     </div>`;

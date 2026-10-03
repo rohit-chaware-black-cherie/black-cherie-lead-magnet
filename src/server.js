@@ -40,6 +40,8 @@ function createApp() {
                     submissionId,
                     name: answers.name,
                     email: answers.email,
+                    newsletterOptIn: answers.newsletterOptIn,
+                    newsletterOptInAt: answers.newsletterOptIn ? new Date() : undefined,
                     company: answers.company,
                     website: answers.website,
                     score: r.score,

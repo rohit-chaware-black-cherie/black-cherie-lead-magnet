@@ -43,8 +43,14 @@ function validateSubmission(body) {
         if (!/^[a-zA-Z0-9_]{1,40}$/.test(k)) continue;
         if (typeof v === "string") answers[k] = v.slice(0, 2000);
         else if (typeof v === "number" && Number.isFinite(v)) answers[k] = v;
+        else if (typeof v === "boolean") answers[k] = v;
         else if (Array.isArray(v)) answers[k] = v.slice(0, 30).map((x) => str(x, 200));
     }
+
+    if (raw.newsletterOptIn !== undefined && typeof raw.newsletterOptIn !== "boolean") {
+        errors.push("newsletterOptIn must be a boolean");
+    }
+    answers.newsletterOptIn = raw.newsletterOptIn === true;
 
     for (const f of ["name", "company", "email"]) {
         if (!str(answers[f], 300)) errors.push(`${f} is required`);

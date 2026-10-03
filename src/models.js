@@ -6,6 +6,8 @@ const submissionSchema = new mongoose.Schema(
         submissionId: { type: String, required: true, unique: true },
         name: { type: String, required: true },
         email: { type: String, required: true, lowercase: true },
+        newsletterOptIn: { type: Boolean, default: false },
+        newsletterOptInAt: Date,
         company: { type: String, required: true },
         website: { type: String, default: "" },
         score: { type: Number, required: true },

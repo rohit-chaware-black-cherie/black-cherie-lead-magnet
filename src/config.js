@@ -1,5 +1,6 @@
 "use strict";
 require("dotenv").config();
+const path = require("path");
 
 const bool = (v, d = false) =>
   v === undefined ? d : ["1", "true", "yes"].includes(String(v).toLowerCase());
@@ -17,6 +18,7 @@ module.exports = {
     dryRun: bool(process.env.EMAIL_DRY_RUN, false),
   },
   scheduleUrl: process.env.SCHEDULE_URL || "",
-  brandEvolutionTestUrl: process.env.BRAND_EVOLUTION_TEST_URL || "https://blackcherie.com/brand-evolution-test",
-  guidePdfPath: process.env.GUIDE_PDF_PATH || "",
+  guidePdfPath:
+    process.env.GUIDE_PDF_PATH ||
+    path.join(__dirname, "..", "assets", "The Business–Brand Alignment Guide BlackCherie.pdf"),
 };

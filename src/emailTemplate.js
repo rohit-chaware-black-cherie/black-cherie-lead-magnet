@@ -42,7 +42,7 @@ function headline(band) {
 }
 
 /** @param s a Submission (or plain object) with score, band, primary, secondary, founderSignal, dims, name */
-function buildScorecard(s, { scheduleUrl, brandEvolutionTestUrl } = {}) {
+function buildScorecard(s, { scheduleUrl } = {}) {
   console.log("[buildScorecard] : building HTML scorecard email");
   const bandColor = BAND_COLORS[s.band] || "#1E4FE0";
   const dims = s.dims || {};
@@ -87,12 +87,6 @@ function buildScorecard(s, { scheduleUrl, brandEvolutionTestUrl } = {}) {
     </div>`
       : "";
 
-  const testBlock = brandEvolutionTestUrl
-    ? `<div style="text-align:center;margin-top:22px;">
-        <a href="${escapeHtml(brandEvolutionTestUrl)}" style="display:inline-block;background:#1E4FE0;color:#fff;text-decoration:none;font-size:13px;font-weight:bold;padding:12px 26px;border-radius:30px;">Take the Brand Evolution Test →</a>
-      </div>`
-    : "";
-
   const markerLeft = Math.min(100, Math.max(0, Number(s.score) || 0));
 
   const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#ffffff;">
@@ -121,6 +115,7 @@ function buildScorecard(s, { scheduleUrl, brandEvolutionTestUrl } = {}) {
       </div>
       <p style="font-size:14px;line-height:1.55;color:#0A1F44;font-weight:bold;margin:0 0 8px;">${escapeHtml(headline(s.band))}</p>
       <p style="font-size:13.5px;line-height:1.6;margin:0 0 16px;">${escapeHtml(interpretation(s.band))}</p>
+      <p style="font-size:12px;line-height:1.6;color:#57607A;margin:0 0 16px;">The Business–Brand Alignment Guide PDF is attached to this email.</p>
 
       <div style="margin-bottom:18px;">
         <span style="display:inline-block;background:#0A1F44;color:#fff;font-size:10px;font-weight:bold;letter-spacing:0.4px;text-transform:uppercase;padding:6px 12px;border-radius:16px;margin:0 6px 6px 0;">Primary — ${escapeHtml(s.primary)}</span>
@@ -141,13 +136,14 @@ function buildScorecard(s, { scheduleUrl, brandEvolutionTestUrl } = {}) {
 
       <p style="font-size:12px;color:#57607A;line-height:1.6;margin-top:16px;">This score doesn't mean you need a rebrand — it means there's enough signal to investigate further.</p>
       ${scheduleBlock}
-      ${testBlock}
     </div>
     <p style="font-size:11px;color:#9AA6C4;text-align:center;margin-top:16px;">Black*Cherie · This is a proprietary strategic diagnostic, not a scientifically validated measurement.</p>
   </div></body></html>`;
 
   const text = [
     `Hi ${s.name || "there"}, here's your Business–Brand Alignment Score.`,
+    ``,
+    `The Business–Brand Alignment Guide PDF is attached to this email.`,
     ``,
     `Score: ${s.score}/100 — ${s.band}`,
     headline(s.band),

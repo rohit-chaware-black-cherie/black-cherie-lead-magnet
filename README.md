@@ -5,7 +5,8 @@ GET /  → form
 POST /api/submissions  → validate → score → MongoDB → email HTML scorecard
 ```
 
-The score is **not shown on the page**. After submit, users see a confirmation and receive the full scorecard in email.
+The score is **not shown on the page**. After submit, users see a confirmation and receive the full scorecard by email, with the Business–Brand Alignment Guide PDF attached.
+The final form step also offers an optional, unchecked newsletter opt-in. Consent is saved with the submission; submitting the assessment does not require subscribing.
 
 ## Run locally
 ```bash
@@ -26,5 +27,6 @@ Email is sent through the Brevo HTTPS API. Create a Brevo API key, verify your s
 - `MAIL_FROM_NAME` — optional sender display name
 - `MAIL_REPLY_TO` — optional reply-to address
 - `EMAIL_DRY_RUN=false`
+- `GUIDE_PDF_PATH` — optional path to the guide PDF; defaults to the copy in `assets/`
 
 Brevo is called over HTTPS, so the app does not need outbound SMTP access. The sender must meet Brevo's verification requirements to send to other recipients.
