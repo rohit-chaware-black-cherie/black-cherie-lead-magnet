@@ -98,6 +98,42 @@ test("form confirms by email instead of showing on-page score", () => {
   assert.ok(!html.includes("function renderResult"));
 });
 
+test("mailer sends scorecard using the Resend HTTPS API", async () => {
+  const config = require("../src/config");
+  const { sendScorecard } = require("../src/mailer");
+  const oldMail = { ...config.mail };
+  const oldFetch = global.fetch;
+  let request;
+
+  config.mail.apiKey = "test-api-key";
+  config.mail.fromAddress = "reports@example.com";
+  config.mail.replyTo = "hello@example.com";
+  config.mail.dryRun = false;
+  global.fetch = async (url, options) => {
+    request = { url, options };
+    return new Response(JSON.stringify({ id: "email-id" }), { status: 200 });
+  };
+
+  try {
+    const result = await sendScorecard({
+      name: "Test Founder", email: "founder@example.net", score: 41, band: "Perception Gap",
+      primary: "Brand Representation Gap", secondary: "", founderSignal: false,
+      dims: { A: 55, B: 62, C: 48, D: 40, E: 45, F: 50 },
+    });
+    assert.strictEqual(result, "email-id");
+    assert.strictEqual(request.url, "https://api.resend.com/emails");
+    assert.strictEqual(request.options.headers.Authorization, "Bearer test-api-key");
+    const body = JSON.parse(request.options.body);
+    assert.strictEqual(body.from, "Black*Cherie <reports@example.com>");
+    assert.deepStrictEqual(body.to, ["founder@example.net"]);
+    assert.strictEqual(body.reply_to, "hello@example.com");
+    assert.ok(body.html && body.text);
+  } finally {
+    config.mail = oldMail;
+    global.fetch = oldFetch;
+  }
+});
+
 test("HTTP: serves form and accepts submissions", async () => {
   const { Submission } = require("../src/models");
   const mailer = require("../src/mailer");
