@@ -278,7 +278,7 @@
                 display: flex;
                 align-items: flex-start;
                 gap: 10px;
-                color: var(--slate);
+                color: var(--blue);
                 font-size: 13px;
                 line-height: 1.5;
                 cursor: pointer;
@@ -1115,8 +1115,7 @@
                             id: "newsletterOptIn",
                             q: "Yes, email me the Black*Cherie newsletter when it launches. I can unsubscribe at any time.",
                             type: "consent",
-                            required: false,
-                            hint: "Optional. Your report will be emailed whether or not you subscribe.",
+                            required: true,
                         },
                     ],
                 },
@@ -1138,6 +1137,7 @@
                     if (!f.required) return true;
                     const v = answers[f.id];
                     if (f.type === "checkbox") return Array.isArray(v) && v.length > 0;
+                    if (f.type === "consent") return v === true;
                     if (f.type === "email") return v && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
                     return v !== undefined && v !== null && String(v).trim().length > 0;
                 });
@@ -1233,7 +1233,7 @@
                 } else if (f.type === "text" || f.type === "email") {
                     inner = `<input type="${f.type}" data-field="${f.id}" placeholder="${f.type === "email" ? "you@company.com" : ""}">`;
                 } else if (f.type === "consent") {
-                    inner = `<label class="consent-option"><input type="checkbox" data-field="${f.id}"><span>${f.q}</span></label>`;
+                    inner = `<label class="consent-option"><input type="checkbox" data-field="${f.id}"${f.required ? " required" : ""}><span>${f.q}</span></label>`;
                 } else if (f.type === "textarea") {
                     inner = `<textarea data-field="${f.id}" placeholder="Type your answer..."></textarea>`;
                 }
